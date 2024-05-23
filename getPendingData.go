@@ -56,8 +56,6 @@ func createSignature(method, requestPath string, params url.Values) (string, str
 func sendGetRequest(requestPath string, params url.Values) (map[string]interface{}, error) {
 	signature, timestamp := createSignature("GET", requestPath, params)
 
-	fmt.Println("Signature:", apiConfig.APIKey)
-
 	headers := map[string]string{
 		"OK-ACCESS-KEY":        apiConfig.APIKey,
 		"OK-ACCESS-SIGN":       signature,
@@ -136,7 +134,7 @@ func getPendingData() []kv {
 
 	dataMap := data["data"].(map[string]interface{})
 	listings := dataMap["data"].([]interface{})
-	fmt.Println("Listings:", len(listings))
+	// fmt.Println("Listings:", len(listings))
 
 	makerPrice := make(map[string]float64)
 	for _, listing := range listings {

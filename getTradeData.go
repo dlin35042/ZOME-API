@@ -35,7 +35,7 @@ func getTradeData() []sv {
 	var allEvents []map[string]interface{}
 
 	for {
-		fmt.Println("Fetching...", url)
+		// fmt.Println("Fetching...", url)
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			fmt.Println("Error creating request:", err)
@@ -72,7 +72,7 @@ func getTradeData() []sv {
 		}
 
 		// Print count of events fetched
-		fmt.Printf("Fetched %d events\n", len(events))
+		// fmt.Printf("Fetched %d events\n", len(events))
 
 		for _, event := range events {
 			allEvents = append(allEvents, event.(map[string]interface{}))
@@ -90,12 +90,12 @@ func getTradeData() []sv {
 
 			time.Sleep(1 * time.Second) // Sleep to avoid hitting rate limit
 		} else {
-			fmt.Println("No more events to fetch.")
+			// fmt.Println("No more events to fetch.")
 			break
 		}
 	}
 
-	fmt.Printf("Total events fetched: %d\n", len(allEvents))
+	// fmt.Printf("Total events fetched: %d\n", len(allEvents))
 
 	// Get seller and sum of quantity of payment from all events
 	sellerQuantity := make(map[string]float64)

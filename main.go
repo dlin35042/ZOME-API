@@ -1,60 +1,65 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
-// corsMiddleware adds CORS headers to responses to allow cross-origin requests
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set headers to allow CORS
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow all domains, adjust as needed
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
-		// Handle preflight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Call the next handler
-		next.ServeHTTP(w, r)
-	})
-}
-
 func main() {
+	// Set up the HTTP server routes
 
-	// Create a new ServeMux
-	mux := http.NewServeMux()
+	// api/airdrop/0x1234567890   0x1234567890 is the address
+	http.HandleFunc("/api/airdrop/", airdropHandler)
 
-	// Add your handlers
-	mux.HandleFunc("/airdrop/start", airdropHandler)
-
-	// Wrap the mux with the CORS middleware
-	handler := corsMiddleware(mux)
-
-	// Start the server with CORS-enabled handler
 	// Start the server
 	fmt.Println("Starting server at port 8000...")
-	http.ListenAndServe(":8080", handler)
+	if err := http.ListenAndServe(":8000", nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func airdropHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method != "GET" {
 		http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
 		return
 	}
 
-	fmt.Fprintln(w, "Starting Airdrop...")
+	// Get address value from the request
+	address := r.URL.Path[len("/api/airdrop/"):]
+
+	fmt.Println("Starting Airdrop...", address)
 
 	// Execute the airdrop logic
-	// err := startAirdrop()
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
 
-	fmt.Fprintln(w, "Airdrop initiated successfully.")
+	filename := "airdrop_data.json"
+
+	amount, err := getValueByAddress(filename, address)
+	if err != nil {
+		fmt.Println("Error:", err)
+		// return amount 0
+		response := struct {
+			Amount string `json:"amount"`
+		}{
+			Amount: "0.00",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	fmt.Printf("Amount for address %s: %s\n", address, amount.FloatString(2))
+	// return amount to the user in the response boy {amount: "123.45"}
+
+	// Create a response struct and encode it to JSON
+	response := struct {
+		Amount string `json:"amount"`
+	}{
+		Amount: amount.FloatString(2), // Convert big.Rat to string with 2 decimal places
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
