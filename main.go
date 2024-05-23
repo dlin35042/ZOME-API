@@ -15,6 +15,8 @@ func main() {
 
 	http.HandleFunc("/api/airdrop/", airdropHandler)
 
+	http.HandleFunc("/api/calculate", calculateAirdropHandler)
+
 	// Start the server
 	fmt.Println("Starting server at port 8000...")
 	if err := http.ListenAndServe(":8000", nil); err != nil {
@@ -29,6 +31,20 @@ func airdropHandler(w http.ResponseWriter, r *http.Request) {
 		clainAirdropToken(w, r)
 	} else {
 		http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
+		return
+	}
+}
+
+func calculateAirdropHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method is not supported.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	err := startAirdrop()
+	if err != nil {
+		fmt.Println("Error:", err)
+
 		return
 	}
 }

@@ -134,7 +134,7 @@ func getPendingData() []kv {
 
 	dataMap := data["data"].(map[string]interface{})
 	listings := dataMap["data"].([]interface{})
-	// fmt.Println("Listings:", len(listings))
+	fmt.Println("Listings:", len(listings))
 
 	makerPrice := make(map[string]float64)
 	for _, listing := range listings {
